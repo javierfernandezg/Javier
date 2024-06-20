@@ -1,9 +1,7 @@
-numpy
-xgboost==2.0.3
-matplotlib
-pandas
-scikit-learn
-dash
-dash-bootstrap-components
-plotly
 streamlit
+pandas
+numpy
+xgboost
+matplotlib
+scikit-learn
+plotly

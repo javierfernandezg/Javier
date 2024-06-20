@@ -70,16 +70,16 @@ elif page == "Demand Forecast":
     if st.button('Go'):
         def prepare_data(data, selection_type, customer_state=None, product_category=None):
             if selection_type == 'state':
-                df = data[data['customer_state'] == customer_state].copy()
+                data = data[data['customer_state'] == customer_state].copy()
             elif selection_type == 'category':
-                df = data[data['product_category_name_english'] == product_category].copy()
+                data = data[data['product_category_name_english'] == product_category].copy()
             elif selection_type == 'both':
-                df = data[(data['customer_state'] == customer_state) & (data['product_category_name_english'] == product_category)].copy()
+                data = data[(data['customer_state'] == customer_state) & (data['product_category_name_english'] == product_category)].copy()
             else:
                 raise ValueError("Invalid selection_type. Choose from 'state', 'category', or 'both'.")
             
-            df = df.set_index('order_purchase_timestamp').resample('D').size().reset_index(name='demand')
-            return df
+            data = data.set_index('order_purchase_timestamp').resample('D').size().reset_index(name='demand')
+            return data
 
         def analyze_orders(selection_type, state=None, category=None):
             df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
@@ -92,13 +92,13 @@ elif page == "Demand Forecast":
             train = prepared_df.iloc[:-21].copy()
             test = prepared_df.iloc[-21:].copy()
 
-            def create_features(df):
-                df = df.copy()
-                df['day_of_week'] = df['order_purchase_timestamp'].dt.dayofweek
-                df['day_of_month'] = df['order_purchase_timestamp'].dt.day
-                df['week_of_year'] = df['order_purchase_timestamp'].dt.isocalendar().week
-                df['month'] = df['order_purchase_timestamp'].dt.month
-                return df
+            def create_features(data):
+                data = data.copy()
+                data['day_of_week'] = data['order_purchase_timestamp'].dt.dayofweek
+                data['day_of_month'] = data['order_purchase_timestamp'].dt.day
+                data['week_of_year'] = data['order_purchase_timestamp'].dt.isocalendar().week
+                data['month'] = data['order_purchase_timestamp'].dt.month
+                return data
 
             train = create_features(train)
             test = create_features(test)

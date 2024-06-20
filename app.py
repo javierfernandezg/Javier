@@ -49,6 +49,7 @@ if page == "Home":
             <a href="{link_url}" target="_blank">
                 <img src="{image_url}" alt="Olist Consulting" style="width:50%;">
             </a>
+            <h2 style="color: #4CAF50; margin-top: 20px;">End-to-end solutions to sell online without a headache</h2>
         </div>
         """,
         unsafe_allow_html=True

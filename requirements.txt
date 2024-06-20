@@ -4,7 +4,5 @@ xgboost
 matplotlib
 streamlit
 plotly
-dash
-dash-bootstrap-components
-seaborn
-statsmodels
+scikit-learn
+zipfile36  # Si zipfile no está incluido en tu entorno por defecto

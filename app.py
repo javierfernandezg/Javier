@@ -52,6 +52,7 @@ if page == "Demand Forecast":
 
     if st.button('Go'):
         def prepare_data(data, selection_type, customer_state=None, product_category=None):
+            print(f"prepare_data called with selection_type: {selection_type}, customer_state: {customer_state}, product_category: {product_category}")
             if selection_type == 'state':
                 df = data[data['customer_state'] == customer_state].copy()
             elif selection_type == 'category':
@@ -65,6 +66,7 @@ if page == "Demand Forecast":
             return df
 
         def analyze_orders(selection_type, state=None, category=None):
+            print(f"analyze_orders called with selection_type: {selection_type}, state: {state}, category: {category}")
             df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
             cutoff_date = pd.to_datetime('2018-07-31')
             df_filtered = df[df['order_purchase_timestamp'] <= cutoff_date]
@@ -132,7 +134,7 @@ if page == "Demand Forecast":
 
             return plot_base64, rmse, results_filtered
 
-        plot_base64, rmse, forecast_comparison = analyze_orders(forecast_option, state, category)
+        plot_base64, rmse, forecast_comparison = analyze_orders(forecast_option.lower().replace(' ', '_'), state, category)
         st.image(f'data:image/png;base64,{plot_base64}', use_column_width=True)
         st.write(f"Root Mean Square Error (RMSE): {rmse}")
         st.dataframe(forecast_comparison)
@@ -232,3 +234,4 @@ elif page == "Seller Analysis":
         )
         
         st.plotly_chart(fig, use_container_width=True)
+

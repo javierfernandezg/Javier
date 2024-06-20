@@ -44,7 +44,17 @@ if page == "Home":
     st.title("Welcome to Olist Consulting")
     image_url = "https://s3-us-west-2.amazonaws.com/cbi-image-service-prd/original/4b74afb1-5a08-411d-a791-5cee8af6be67.png"
     link_url = "https://olist.com/"
-    st.markdown(f'<a href="{link_url}" target="_blank"><img src="{image_url}" alt="Olist Consulting" style="width:100%;"></a>', unsafe_allow_html=True)
+    st.markdown(
+        f"""
+        <div style="text-align: center;">
+            <h1>Welcome to Olist Consulting</h1>
+            <a href="{link_url}" target="_blank">
+                <img src="{image_url}" alt="Olist Consulting" style="margin-top: 20px; width:50%;">
+            </a>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 # Demand Forecast Analysis
 elif page == "Demand Forecast":
@@ -248,4 +258,5 @@ elif page == "Seller Analysis":
         )
         
         st.plotly_chart(fig, use_container_width=True)
+
 

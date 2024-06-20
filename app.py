@@ -11,11 +11,11 @@ import plotly.express as px
 import zipfile
 
 with zipfile.ZipFile('merged_final_dataset.csv.zip', 'r') as zipf:
-    with zipf.open(merged_final_dataset.csv') as f:
+    with zipf.open('merged_final_dataset.csv') as f:
         merged_df = pd.read_csv(f)
 
 with zipfile.ZipFile('final_dataset.csv.zip', 'r') as zipf:
-    with zipf.open(final_dataset.csv') as f:
+    with zipf.open('final_dataset.csv') as f:
         df = pd.read_csv(f)
 
 # Convert date columns to datetime

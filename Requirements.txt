@@ -1,7 +1,7 @@
 pandas
-numpy as np
-xgboost as xgb
-matplotlib.pyplot as plt
+numpy
+xgboost
+matplotlib.pyplot
 io
 base64
 datetime import 

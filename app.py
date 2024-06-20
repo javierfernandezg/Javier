@@ -10,6 +10,7 @@ import streamlit as st
 import plotly.express as px
 import zipfile
 
+# Cargar datos
 with zipfile.ZipFile('merged_final_dataset.csv.zip', 'r') as zipf:
     with zipf.open('merged_final_dataset.csv') as f:
         merged_df = pd.read_csv(f)
@@ -18,28 +19,35 @@ with zipfile.ZipFile('final_dataset.csv.zip', 'r') as zipf:
     with zipf.open('final_dataset.csv') as f:
         df = pd.read_csv(f)
 
-# Convert date columns to datetime
+# Convertir columnas de fecha a datetime
 df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
 df['order_delivered_customer_date'] = pd.to_datetime(df['order_delivered_customer_date'], errors='coerce')
 
-# Calculate delivery time in days
+# Calcular tiempo de entrega en días
 df['delivery_time'] = (df['order_delivered_customer_date'] - df['order_purchase_timestamp']).dt.days
 
-# Filter out invalid data
+# Filtrar datos inválidos
 df = df[df['delivery_time'].notna() & df['review_score'].notna()]
 
-# Calculate average delivery time and rating by state
+# Calcular tiempo de entrega promedio y calificación por estado
 state_summary = df.groupby('customer_state').agg({'delivery_time': 'mean', 'review_score': 'mean'}).reset_index()
 
 # Sidebar
 st.sidebar.title("Olist Consulting")
 page = st.sidebar.selectbox(
     "Choose a page",
-    ["Demand Forecast", "Rating and Delivery Time", "Seller Analysis"]
+    ["Home", "Demand Forecast", "Rating and Delivery Time", "Seller Analysis"]
 )
 
+# Página de bienvenida
+if page == "Home":
+    st.title("Welcome to Olist Consulting")
+    image_url = "https://s3-us-west-2.amazonaws.com/cbi-image-service-prd/original/4b74afb1-5a08-411d-a791-5cee8af6be67.png"
+    link_url = "https://olist.com/"
+    st.markdown(f'<a href="{link_url}" target="_blank"><img src="{image_url}" alt="Olist Consulting" style="width:100%;"></a>', unsafe_allow_html=True)
+
 # Demand Forecast Analysis
-if page == "Demand Forecast":
+elif page == "Demand Forecast":
     st.title("Demand Forecast Analysis")
     
     state = st.selectbox("Select a customer state", df['customer_state'].unique())
@@ -132,21 +140,19 @@ if page == "Demand Forecast":
 
             return plot_base64, rmse, results_filtered
 
-        # Mapeo de forecast_option a valores esperados
         forecast_option_mapping = {
             'Only by Category': 'category',
             'Only by State': 'state',
             'By Both State and Category': 'both'
         }
 
-        # Obtener el valor mapeado de forecast_option
         selection_type = forecast_option_mapping[forecast_option]
         
         plot_base64, rmse, forecast_comparison = analyze_orders(selection_type, state, category)
         st.image(f'data:image/png;base64,{plot_base64}', use_column_width=True)
         st.write(f"Root Mean Square Error (RMSE): {rmse}")
         st.dataframe(forecast_comparison)
-        
+
 # Rating and Delivery Time Analysis
 elif page == "Rating and Delivery Time":
     st.title("Rating and Delivery Time Analysis")

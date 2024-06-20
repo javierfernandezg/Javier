@@ -1,8 +1,10 @@
-pandas
 numpy
 xgboost
 matplotlib
+pandas
 scikit-learn
-streamlit
+dash
+dash-bootstrap-components
 plotly
+streamlit
 

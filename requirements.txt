@@ -7,3 +7,4 @@ dash==2.14.2
 dash-bootstrap-components==1.6.0
 plotly==5.9.0
 streamlit==1.35.0
+statsmodels

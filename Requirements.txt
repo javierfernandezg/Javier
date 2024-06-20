@@ -1,11 +1,8 @@
 pandas
 numpy
 xgboost
-matplotlib.pyplot
-io
-base64
-datetime import 
-sklearn.metrics 
-streamlit 
-plotly.express
-zipfile
+matplotlib
+scikit-learn
+streamlit
+plotly
+

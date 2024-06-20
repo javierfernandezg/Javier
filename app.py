@@ -10,36 +10,38 @@ import streamlit as st
 import plotly.express as px
 import zipfile
 
-# Cargar los datos
-df = pd.read_csv('data/final_dataset.csv')
-merged_df = pd.read_csv('data/merged_final_dataset.csv')
-closed_deals = pd.read_csv('data/olist_closed_deals_dataset.csv')
-qualified_leads = pd.read_csv('data/olist_marketing_qualified_leads_dataset.csv')
+with zipfile.ZipFile('merged_final_dataset.csv.zip', 'r') as zipf:
+    with zipf.open('merged_final_dataset.csv') as f:
+        merged_df = pd.read_csv(f)
 
-# Convertir columnas de fecha a datetime
+with zipfile.ZipFile('final_dataset.csv.zip', 'r') as zipf:
+    with zipf.open('final_dataset.csv') as f:
+        df = pd.read_csv(f)
+
+# Convert date columns to datetime
 df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
 df['order_delivered_customer_date'] = pd.to_datetime(df['order_delivered_customer_date'], errors='coerce')
 
-# Calcular tiempo de entrega en días
+# Calculate delivery time in days
 df['delivery_time'] = (df['order_delivered_customer_date'] - df['order_purchase_timestamp']).dt.days
 
-# Filtrar datos inválidos
+# Filter out invalid data
 df = df[df['delivery_time'].notna() & df['review_score'].notna()]
 
-# Calcular tiempo de entrega promedio y calificación por estado
+# Calculate average delivery time and rating by state
 state_summary = df.groupby('customer_state').agg({'delivery_time': 'mean', 'review_score': 'mean'}).reset_index()
 
 # Sidebar
 st.sidebar.title("Olist Consulting")
 page = st.sidebar.selectbox(
     "Choose a page",
-    ["Demand Forecast", "Rating and Delivery Time", "Seller Analysis", "Seller Power and Conversion Rates"]
+    ["Demand Forecast", "Rating and Delivery Time", "Seller Analysis"]
 )
 
 # Demand Forecast Analysis
 if page == "Demand Forecast":
     st.title("Demand Forecast Analysis")
-
+    
     state = st.selectbox("Select a customer state", df['customer_state'].unique())
     category = st.selectbox("Select a product category", df['product_category_name_english'].unique())
     forecast_option = st.radio(
@@ -130,19 +132,21 @@ if page == "Demand Forecast":
 
             return plot_base64, rmse, results_filtered
 
+        # Mapeo de forecast_option a valores esperados
         forecast_option_mapping = {
             'Only by Category': 'category',
             'Only by State': 'state',
             'By Both State and Category': 'both'
         }
 
+        # Obtener el valor mapeado de forecast_option
         selection_type = forecast_option_mapping[forecast_option]
         
         plot_base64, rmse, forecast_comparison = analyze_orders(selection_type, state, category)
         st.image(f'data:image/png;base64,{plot_base64}', use_column_width=True)
         st.write(f"Root Mean Square Error (RMSE): {rmse}")
         st.dataframe(forecast_comparison)
-
+        
 # Rating and Delivery Time Analysis
 elif page == "Rating and Delivery Time":
     st.title("Rating and Delivery Time Analysis")
@@ -198,13 +202,13 @@ elif page == "Rating and Delivery Time":
 elif page == "Seller Analysis":
     st.title("Seller Analysis")
 
-    selected_state = st.selectbox("Select a customer state", [None] + list(merged_df['customer_state_summary'].unique()), index=0)
-    selected_category = st.selectbox("Select a product category", [None] + list(merged_df['product_category_name_english_summary'].unique()), index=0)
-    ranking_filter = st.selectbox(
-        "Select ranking filter",
-        ['Top 10 Best Sellers', 'Top 10 Worst Sellers'],
+    selected_metric = st.selectbox(
+        "Select a metric to filter",
+        ['revenue_final', 'delivery_time_final', 'avg_rating'],
         index=0
     )
+    selected_state = st.selectbox("Select a customer state", [None] + list(merged_df['customer_state_summary'].unique()), index=0)
+    selected_category = st.selectbox("Select a product category", [None] + list(merged_df['product_category_name_english_summary'].unique()), index=0)
 
     if st.button('Go'):
         filtered_data = merged_df
@@ -213,11 +217,6 @@ elif page == "Seller Analysis":
             filtered_data = filtered_data[filtered_data['customer_state_summary'] == selected_state]
         if selected_category:
             filtered_data = filtered_data[filtered_data['product_category_name_english_summary'] == selected_category]
-
-        if ranking_filter == 'Top 10 Best Sellers':
-            filtered_data = filtered_data.nlargest(10, 'revenue_final')
-        elif ranking_filter == 'Top 10 Worst Sellers':
-            filtered_data = filtered_data.nsmallest(10, 'revenue_final')
 
         fig = px.scatter(
             filtered_data,
@@ -244,45 +243,3 @@ elif page == "Seller Analysis":
         
         st.plotly_chart(fig, use_container_width=True)
 
-# Seller Power and Conversion Rates
-elif page == "Seller Power and Conversion Rates":
-    st.title("Seller Power and Conversion Rates")
-    
-    num_top_categories = st.selectbox(
-        'Select number of top categories',
-        [5, 10, 15, 20],
-        index=1
-    )
-    
-    segment = st.selectbox("Select a business segment", [None] + list(conversion_data['business_segment'].unique()), index=0)
-
-    if st.button('Analyze'):
-        top_categories = category_analysis.sort_values(by='avg_sales_per_seller', ascending=False).head(num_top_categories)
-        fig1 = px.bar(
-            top_categories,
-            x='product_category_name_english',
-            y='avg_sales_per_seller',
-            title=f'Top {num_top_categories} Categories with Highest Seller Power',
-            labels={'avg_sales_per_seller': 'Average Sales per Seller'},
-            color='avg_sales_per_seller',
-            color_continuous_scale='Viridis'
-        )
-        fig1.add_hline(y=high_power_threshold, line_dash="dash", line_color="red", annotation_text="High Power Threshold")
-
-        if segment:
-            filtered_data = conversion_data[conversion_data['business_segment'] == segment]
-            fig2 = px.bar(
-                filtered_data,
-                x='origin',
-                y='conversion_rate',
-                title=f'Conversion Rates for Business Segment: {segment}',
-                labels={'conversion_rate': 'Conversion Rate'},
-                color='conversion_rate',
-                color_continuous_scale='Blues'
-            )
-        else:
-            fig2 = {}
-
-        st.plotly_chart(fig1, use_container_width=True)
-        if fig2:
-            st.plotly_chart(fig2, use_container_width=True)

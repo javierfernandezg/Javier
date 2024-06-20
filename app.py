@@ -41,15 +41,13 @@ page = st.sidebar.selectbox(
 
 # Página de bienvenida
 if page == "Home":
-    st.title("Welcome to Olist Consulting")
     image_url = "https://s3-us-west-2.amazonaws.com/cbi-image-service-prd/original/4b74afb1-5a08-411d-a791-5cee8af6be67.png"
     link_url = "https://olist.com/"
     st.markdown(
         f"""
-        <div style="text-align: center;">
-            <h1>Welcome to Olist Consulting</h1>
+        <div style="text-align: center; margin-top: 50px;">
             <a href="{link_url}" target="_blank">
-                <img src="{image_url}" alt="Olist Consulting" style="margin-top: 20px; width:50%;">
+                <img src="{image_url}" alt="Olist Consulting" style="width:50%;">
             </a>
         </div>
         """,
@@ -258,5 +256,3 @@ elif page == "Seller Analysis":
         )
         
         st.plotly_chart(fig, use_container_width=True)
-
-

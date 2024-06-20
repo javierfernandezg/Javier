@@ -246,5 +246,5 @@ elif page == "Seller Analysis":
         
         st.plotly_chart(fig, use_container_width=True)
 
-if name == "main":
-app.run_server(port=8054)
+        if name == "main":
+        app.run_server(port=8054)

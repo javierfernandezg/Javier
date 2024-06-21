@@ -2,8 +2,7 @@ pandas
 numpy
 xgboost
 matplotlib
-plotly
-seaborn
 scikit-learn
+plotly
 streamlit
 zipfile36

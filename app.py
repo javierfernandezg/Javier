@@ -13,12 +13,18 @@ import os
 
 # Helper function to extract and load CSVs from zip files
 def load_csv_from_zip(zip_path, file_name):
+    if not os.path.exists(zip_path):
+        st.error(f"{zip_path} does not exist.")
+        st.stop()
     with zipfile.ZipFile(zip_path, 'r') as z:
+        if file_name not in z.namelist():
+            st.error(f"{file_name} not found in the zip file.")
+            st.stop()
         with z.open(file_name) as f:
             return pd.read_csv(f)
 
 # Load datasets
-@st.cache
+@st.cache_data
 def load_data():
     merged_df = load_csv_from_zip('data/merged_final_dataset_cleaned.csv.zip', 'merged_final_dataset_cleaned.csv')
     df = load_csv_from_zip('data/final_dataset.csv.zip', 'final_dataset.csv')

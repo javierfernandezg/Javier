@@ -8,18 +8,26 @@ from datetime import timedelta
 from sklearn.metrics import mean_squared_error
 import plotly.express as px
 import streamlit as st
+import zipfile
+import os
+
+# Helper function to extract and load CSVs from zip files
+def load_csv_from_zip(zip_path, file_name):
+    with zipfile.ZipFile(zip_path, 'r') as z:
+        with z.open(file_name) as f:
+            return pd.read_csv(f)
 
 # Load datasets
 @st.cache
 def load_data():
-    merged_df = pd.read_csv('data/merged_final_dataset_cleaned.csv')
-    df = pd.read_csv('data/final_dataset.csv')
+    merged_df = load_csv_from_zip('data/merged_final_dataset_cleaned.csv.zip', 'merged_final_dataset_cleaned.csv')
+    df = load_csv_from_zip('data/final_dataset.csv.zip', 'final_dataset.csv')
     df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
     df['order_delivered_customer_date'] = pd.to_datetime(df['order_delivered_customer_date'], errors='coerce')
     df['delivery_time'] = (df['order_delivered_customer_date'] - df['order_purchase_timestamp']).dt.days
     df = df[df['delivery_time'].notna() & df['review_score'].notna()]
-    closed_deals = pd.read_csv('data/olist_closed_deals_dataset.csv')
-    qualified_leads = pd.read_csv('data/olist_marketing_qualified_leads_dataset.csv')
+    closed_deals = load_csv_from_zip('data/olist_closed_deals_dataset.csv.zip', 'olist_closed_deals_dataset.csv')
+    qualified_leads = load_csv_from_zip('data/olist_marketing_qualified_leads_dataset.csv.zip', 'olist_marketing_qualified_leads_dataset.csv')
     return merged_df, df, closed_deals, qualified_leads
 
 merged_df, df, closed_deals, qualified_leads = load_data()

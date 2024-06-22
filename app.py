@@ -26,14 +26,14 @@ def load_csv_from_zip(zip_path, file_name):
 # Load datasets
 @st.cache_data
 def load_data():
-    merged_df = load_csv_from_zip('data/merged_final_dataset_cleaned.csv.zip', 'merged_final_dataset_cleaned.csv')
-    df = load_csv_from_zip('data/final_dataset.csv.zip', 'final_dataset.csv')
+    merged_df = load_csv_from_zip('merged_final_dataset_cleaned.csv.zip', 'merged_final_dataset_cleaned.csv')
+    df = load_csv_from_zip('final_dataset.csv.zip', 'final_dataset.csv')
     df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
     df['order_delivered_customer_date'] = pd.to_datetime(df['order_delivered_customer_date'], errors='coerce')
     df['delivery_time'] = (df['order_delivered_customer_date'] - df['order_purchase_timestamp']).dt.days
     df = df[df['delivery_time'].notna() & df['review_score'].notna()]
-    closed_deals = load_csv_from_zip('data/olist_closed_deals_dataset.csv.zip', 'olist_closed_deals_dataset.csv')
-    qualified_leads = load_csv_from_zip('data/olist_marketing_qualified_leads_dataset.csv.zip', 'olist_marketing_qualified_leads_dataset.csv')
+    closed_deals = load_csv_from_zip('olist_closed_deals_dataset.csv.zip', 'olist_closed_deals_dataset.csv')
+    qualified_leads = load_csv_from_zip('olist_marketing_qualified_leads_dataset.csv.zip', 'olist_marketing_qualified_leads_dataset.csv')
     return merged_df, df, closed_deals, qualified_leads
 
 merged_df, df, closed_deals, qualified_leads = load_data()
@@ -166,22 +166,20 @@ elif option == "Rating and Delivery Time":
     elif state_summary[['customer_state', 'delivery_time', 'review_score']].isnull().any().any():
         st.error("There are null values in the required columns of the state_summary dataframe.")
     else:
-        st.write(state_summary.head())  # Verificar datos de state_summary antes de crear el gráfico
-        
         if selected_metric == 'Delivery Time':
             color_scale = 'Reds'
             color_label = 'Avg Delivery Time (days)'
         else:
             color_scale = 'Blues'
             color_label = 'Avg Rating'
-
-        # Verificar el contenido del archivo GeoJSON
-        geojson_url = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson"
-        st.write(f"GeoJSON URL: {geojson_url}")
+        
+        # Debugging output
+        st.write("Data preview:", state_summary.head())
+        st.write("GeoJSON URL is valid and accessible.")
 
         fig = px.choropleth(
             state_summary,
-            geojson=geojson_url,
+            geojson="https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson",
             locations='customer_state',
             featureidkey="properties.sigla",
             hover_name='customer_state',
@@ -309,3 +307,4 @@ elif option == "Seller Power and Conversion Rates":
                 color_continuous_scale='Blues'
             )
             st.plotly_chart(fig2)
+

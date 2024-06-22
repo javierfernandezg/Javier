@@ -11,27 +11,21 @@ import streamlit as st
 import zipfile
 import os
 
-# Cargar datos
-with zipfile.ZipFile('merged_final_dataset_cleaned.csv.zip', 'r') as zipf:
-    with zipf.open('final_dataset.csv') as f:
-        df = pd.read_csv(f)
-
-with zipfile.ZipFile('final_dataset.csv.zip', 'r') as zipf:
-    with zipf.open('final_dataset.csv') as f:
-        df = pd.read_csv(f)
-
-with zipfile.ZipFile('olist_closed_deals_dataset.csv.zip', 'r') as zipf:
-    with zipf.open('olist_closed_deals_dataset.csv') as f:
-        df = pd.read_csv(f)
-
-with zipfile.ZipFile('olist_marketing_qualified_leads_dataset.csv.zip', 'r') as zipf:
-    with zipf.open('olist_marketing_qualified_leads_dataset.csv') as f:
-        df = pd.read_csv(f)
+# Helper function to extract and load CSVs from zip files
+def load_csv_from_zip(zip_path, file_name):
+    if not os.path.exists(zip_path):
+        st.error(f"{zip_path} does not exist.")
+        st.stop()
+    with zipfile.ZipFile(zip_path, 'r') as z:
+        if file_name not in z.namelist():
+            st.error(f"{file_name} not found in the zip file.")
+            st.stop()
+        with z.open(file_name) as f:
+            return pd.read_csv(f)
 
 # Load datasets
 @st.cache_data
 def load_data():
-    merged_df = load_csv_from_zip('data/merged_final_dataset_cleaned.csv.zip', 'merged_final_dataset_cleaned.csv')
     df = load_csv_from_zip('data/final_dataset.csv.zip', 'final_dataset.csv')
     df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
     df['order_delivered_customer_date'] = pd.to_datetime(df['order_delivered_customer_date'], errors='coerce')
@@ -39,9 +33,9 @@ def load_data():
     df = df[df['delivery_time'].notna() & df['review_score'].notna()]
     closed_deals = load_csv_from_zip('data/olist_closed_deals_dataset.csv.zip', 'olist_closed_deals_dataset.csv')
     qualified_leads = load_csv_from_zip('data/olist_marketing_qualified_leads_dataset.csv.zip', 'olist_marketing_qualified_leads_dataset.csv')
-    return merged_df, df, closed_deals, qualified_leads
+    return df, closed_deals, qualified_leads
 
-merged_df, df, closed_deals, qualified_leads = load_data()
+df, closed_deals, qualified_leads = load_data()
 
 # Calculate metrics
 state_summary = df.groupby('customer_state').agg({'delivery_time': 'mean', 'review_score': 'mean'}).reset_index()
@@ -197,31 +191,31 @@ elif option == "Rating and Delivery Time":
 
 elif option == "Seller Analysis":
     st.header("Seller Analysis")
-    selected_state = st.selectbox('Select a customer state', merged_df['customer_state_summary'].unique())
-    selected_category = st.selectbox('Select a product category', merged_df['product_category_name_english_summary'].unique())
+    selected_state = st.selectbox('Select a customer state', df['customer_state'].unique())
+    selected_category = st.selectbox('Select a product category', df['product_category_name_english'].unique())
     ranking_filter = st.radio('Select ranking filter', ['Top 10 Best Sellers', 'Top 10 Worst Sellers'])
     if st.button('Go'):
-        filtered_data = merged_df
+        filtered_data = df
         if selected_state:
-            filtered_data = filtered_data[filtered_data['customer_state_summary'] == selected_state]
+            filtered_data = filtered_data[filtered_data['customer_state'] == selected_state]
         if selected_category:
-            filtered_data = filtered_data[filtered_data['product_category_name_english_summary'] == selected_category]
-        if ranking_filter == 'best':
+            filtered_data = filtered_data[filtered_data['product_category_name_english'] == selected_category]
+        if ranking_filter == 'Top 10 Best Sellers':
             filtered_data = filtered_data.nlargest(10, 'revenue_final')
-        elif ranking_filter == 'worst':
+        elif ranking_filter == 'Top 10 Worst Sellers':
             filtered_data = filtered_data.nsmallest(10, 'revenue_final')
 
         fig = px.scatter(
             filtered_data,
-            x='delivery_time_summary',
+            x='delivery_time',
             y='revenue_final',
-            size='avg_rating',
+            size='review_score',
             hover_name='seller_id',
             title='Seller Analysis: Delivery Time vs. Revenue with Rating as Size',
-            labels={'delivery_time_summary': 'Avg Delivery Time', 'revenue_final': 'Revenue', 'avg_rating': 'Avg Rating'},
+            labels={'delivery_time': 'Avg Delivery Time', 'revenue_final': 'Revenue', 'review_score': 'Avg Rating'},
             size_max=60
         )
-        fig.update_traces(marker=dict(color=filtered_data['avg_rating'], colorscale='Plasma'))
+        fig.update_traces(marker=dict(color=filtered_data['review_score'], colorscale='Plasma'))
         fig.update_layout(
             margin={"r":0,"t":50,"l":0,"b":0},
             height=800,
@@ -244,12 +238,12 @@ elif option == "Seller Analysis":
             return data.drop_duplicates(subset=['seller_id']).nlargest(n, column)[['seller_id', column]]
 
         top_sellers_revenue = get_top_n_unique(filtered_data, 'revenue_final')
-        top_sellers_delivery_time = get_top_n_unique(filtered_data, 'delivery_time_summary')
-        top_sellers_rating = get_top_n_unique(filtered_data, 'avg_rating')
+        top_sellers_delivery_time = get_top_n_unique(filtered_data, 'delivery_time')
+        top_sellers_rating = get_top_n_unique(filtered_data, 'review_score')
         filtered_data['overall_score'] = (
             (filtered_data['revenue_final'].rank(ascending=False) +
-             filtered_data['delivery_time_summary'].rank(ascending=True) +
-             filtered_data['avg_rating'].rank(ascending=False)) / 3
+             filtered_data['delivery_time'].rank(ascending=True) +
+             filtered_data['review_score'].rank(ascending=False)) / 3
         )
         top_sellers_overall = get_top_n_unique(filtered_data, 'overall_score')
 
@@ -292,4 +286,5 @@ elif option == "Seller Power and Conversion Rates":
                 color_continuous_scale='Blues'
             )
             st.plotly_chart(fig2)
+
 

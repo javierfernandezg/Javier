@@ -11,6 +11,9 @@ import streamlit as st
 import zipfile
 import os
 
+# Configuración inicial de la página
+st.set_page_config(layout="wide")
+
 # Helper function to extract and load CSVs from zip files
 def load_csv_from_zip(zip_path, file_name):
     if not os.path.exists(zip_path):
@@ -135,7 +138,6 @@ def analyze_orders(selection_type, state=None, category=None):
     st.write(results_filtered)
 
 # Streamlit App
-st.set_page_config(layout="wide")
 st.markdown(
     """
     <style>

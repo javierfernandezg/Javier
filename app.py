@@ -11,9 +11,6 @@ import streamlit as st
 import zipfile
 import os
 
-# Configuración inicial de la página
-st.set_page_config(layout="wide")
-
 # Helper function to extract and load CSVs from zip files
 def load_csv_from_zip(zip_path, file_name):
     if not os.path.exists(zip_path):
@@ -138,68 +135,11 @@ def analyze_orders(selection_type, state=None, category=None):
     st.write(results_filtered)
 
 # Streamlit App
-st.markdown(
-    """
-    <style>
-    .css-18e3th9 {
-        padding: 2rem 1rem;
-    }
-    .css-1d391kg {
-        padding: 2rem 1rem;
-    }
-    .css-1avcm0n {
-        background-color: #1f4e79;
-    }
-    .css-1d391kg, .css-18e3th9, .css-18ni7ap {
-        background-color: #e0f7ff;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
 st.title("Olist Consulting Dashboard")
-st.markdown("""
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">Olist Consulting</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#introduction">Introduction</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#demand-forecast">Demand Forecast</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#rating-delivery">Rating and Delivery Time</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#seller-analysis">Seller Analysis</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#seller-power">Seller Power and Conversion Rates</a>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-    """, unsafe_allow_html=True)
+st.sidebar.title("Navigation")
+option = st.sidebar.selectbox("Choose a section", ["Demand Forecast", "Rating and Delivery Time", "Seller Analysis", "Seller Power and Conversion Rates"])
 
-option = st.selectbox("Choose a section", ["Introduction", "Demand Forecast", "Rating and Delivery Time", "Seller Analysis", "Seller Power and Conversion Rates"], index=0)
-
-if option == "Introduction":
-    st.header("Welcome to Olist Consulting")
-    st.markdown("""
-        <div style="text-align: center;">
-            <img src="data:image/png;base64,{}" alt="Welcome Image" style="max-width:100%;" onclick="window.location.href='https://olist.com';" />
-        </div>
-        """.format(base64.b64encode(open('/mnt/data/image.png', 'rb').read()).decode()), unsafe_allow_html=True)
-
-elif option == "Demand Forecast":
+if option == "Demand Forecast":
     st.header("Demand Forecast Analysis")
     state = st.selectbox('Select a customer state', df['customer_state'].unique())
     category = st.selectbox('Select a product category', df['product_category_name_english'].unique())

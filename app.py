@@ -12,6 +12,10 @@ import zipfile
 import os
 
 # Cargar datos
+with zipfile.ZipFile('merged_final_dataset.csv.zip', 'r') as zipf:
+    with zipf.open('final_dataset.csv') as f:
+        df = pd.read_csv(f)
+
 with zipfile.ZipFile('final_dataset.csv.zip', 'r') as zipf:
     with zipf.open('final_dataset.csv') as f:
         df = pd.read_csv(f)

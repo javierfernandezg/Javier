@@ -144,8 +144,17 @@ if option == "Demand Forecast":
     state = st.selectbox('Select a customer state', df['customer_state'].unique())
     category = st.selectbox('Select a product category', df['product_category_name_english'].unique())
     forecast_option = st.radio('Forecast Option', ['Only by Category', 'Only by State', 'By Both State and Category'], index=1)
+    
+    # Map forecast_option to selection_type
+    if forecast_option == 'Only by Category':
+        selection_type = 'category'
+    elif forecast_option == 'Only by State':
+        selection_type = 'state'
+    elif forecast_option == 'By Both State and Category':
+        selection_type = 'both'
+
     if st.button('Go'):
-        analyze_orders(forecast_option, state, category)
+        analyze_orders(selection_type, state, category)
 
 elif option == "Rating and Delivery Time":
     st.header("Rating and Delivery Time Analysis")
@@ -287,3 +296,4 @@ elif option == "Seller Power and Conversion Rates":
                 color_continuous_scale='Blues'
             )
             st.plotly_chart(fig2)
+

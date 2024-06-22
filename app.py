@@ -161,50 +161,50 @@ elif option == "Rating and Delivery Time":
     selected_metric = st.selectbox('Select metric', ['Delivery Time', 'Rating'])
     
     # Check for required columns and non-null values
-    if 'customer_state' not in state_summary.columns or 'delivery_time' not in state_summary.columns or 'review_score' not in state_summary.columns:
-        st.error("Required columns are missing from the state_summary dataframe.")
-    elif state_summary[['customer_state', 'delivery_time', 'review_score']].isnull().any().any():
-        st.error("There are null values in the required columns of the state_summary dataframe.")
+if 'customer_state' not in state_summary.columns or 'delivery_time' not in state_summary.columns or 'review_score' not in state_summary.columns:
+    st.error("Required columns are missing from the state_summary dataframe.")
+elif state_summary[['customer_state', 'delivery_time', 'review_score']].isnull().any().any():
+    st.error("There are null values in the required columns of the state_summary dataframe.")
+else:
+    if selected_metric == 'Delivery Time':
+        color_scale = 'Reds'
+        color_label = 'Avg Delivery Time (days)'
     else:
-        if selected_metric == 'Delivery Time':
-            color_scale = 'Reds'
-            color_label = 'Avg Delivery Time (days)'
-        else:
-            color_scale = 'Blues'
-            color_label = 'Avg Rating'
-        
-        fig = px.choropleth(
-            state_summary,
-            geojson="https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson",
-            locations='customer_state',
-            featureidkey="properties.sigla",
-            hover_name='customer_state',
-            color=selected_metric.lower(),
-            color_continuous_scale=color_scale,
-            labels={selected_metric.lower(): color_label},
-            hover_data={
-                'delivery_time': True,
-                'review_score': True,
-                'customer_state': False
-            },
-            title=f'Average {color_label} by State'
+        color_scale = 'Blues'
+        color_label = 'Avg Rating'
+
+    fig = px.choropleth(
+        state_summary,
+        geojson="https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson",
+        locations='customer_state',
+        featureidkey="properties.sigla",
+        hover_name='customer_state',
+        color=selected_metric.lower(),
+        color_continuous_scale=color_scale,
+        labels={selected_metric.lower(): color_label},
+        hover_data={
+            'delivery_time': True,
+            'review_score': True,
+            'customer_state': False
+        },
+        title=f'Average {color_label} by State'
+    )
+    fig.update_geos(fitbounds="locations", visible=False)
+    fig.update_layout(
+        margin={"r":0,"t":50,"l":0,"b":0},
+        clickmode='event+select',
+        autosize=True,
+        width=1000,
+        height=600,
+        coloraxis_colorbar=dict(
+            title=color_label,
+            thicknessmode="pixels", thickness=15,
+            lenmode="pixels", len=200,
+            yanchor="middle", y=0.5,
+            xanchor="left", x=-0.1
         )
-        fig.update_geos(fitbounds="locations", visible=False)
-        fig.update_layout(
-            margin={"r":0,"t":50,"l":0,"b":0},
-            clickmode='event+select',
-            autosize=True,
-            width=1000,
-            height=600,
-            coloraxis_colorbar=dict(
-                title=color_label,
-                thicknessmode="pixels", thickness=15,
-                lenmode="pixels", len=200,
-                yanchor="middle", y=0.5,
-                xanchor="left", x=-0.1
-            )
-        )
-        st.plotly_chart(fig)
+    )
+    st.plotly_chart(fig)
 
 elif option == "Seller Analysis":
     st.header("Seller Analysis")

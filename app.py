@@ -43,7 +43,7 @@ state_summary = df.groupby('customer_state').agg({'delivery_time': 'mean', 'revi
 unique_sellers_per_category = df.groupby('product_category_name_english')['seller_id'].nunique().reset_index()
 unique_sellers_per_category.rename(columns={'seller_id': 'unique_sellers_count'}, inplace=True)
 total_sales_per_category = df.groupby('product_category_name_english')['order_id'].count().reset_index()
-total_sales_per_category.rename(columns={'order_id': 'total_sales'}, inplace=True)
+total_sales_per_category.rename(columns({'order_id': 'total_sales'}, inplace=True)
 category_analysis = pd.merge(unique_sellers_per_category, total_sales_per_category, on='product_category_name_english')
 category_analysis['avg_sales_per_seller'] = category_analysis['total_sales'] / category_analysis['unique_sellers_count']
 median_avg_sales_per_seller = category_analysis['avg_sales_per_seller'].median()
@@ -159,45 +159,52 @@ if option == "Demand Forecast":
 elif option == "Rating and Delivery Time":
     st.header("Rating and Delivery Time Analysis")
     selected_metric = st.selectbox('Select metric', ['Delivery Time', 'Rating'])
-    if selected_metric == 'Delivery Time':
-        color_scale = 'Reds'
-        color_label = 'Avg Delivery Time (days)'
-    else:
-        color_scale = 'Blues'
-        color_label = 'Avg Rating'
     
-    fig = px.choropleth(
-        state_summary,
-        geojson="https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson",
-        locations='customer_state',
-        featureidkey="properties.sigla",
-        hover_name='customer_state',
-        color=selected_metric.lower(),
-        color_continuous_scale=color_scale,
-        labels={selected_metric.lower(): color_label},
-        hover_data={
-            'delivery_time': True,
-            'review_score': True,
-            'customer_state': False
-        },
-        title=f'Average {color_label} by State'
-    )
-    fig.update_geos(fitbounds="locations", visible=False)
-    fig.update_layout(
-        margin={"r":0,"t":50,"l":0,"b":0},
-        clickmode='event+select',
-        autosize=True,
-        width=1000,
-        height=600,
-        coloraxis_colorbar=dict(
-            title=color_label,
-            thicknessmode="pixels", thickness=15,
-            lenmode="pixels", len=200,
-            yanchor="middle", y=0.5,
-            xanchor="left", x=-0.1
+    # Check for required columns and non-null values
+    if 'customer_state' not in state_summary.columns or 'delivery_time' not in state_summary.columns or 'review_score' not in state_summary.columns:
+        st.error("Required columns are missing from the state_summary dataframe.")
+    elif state_summary[['customer_state', 'delivery_time', 'review_score']].isnull().any().any():
+        st.error("There are null values in the required columns of the state_summary dataframe.")
+    else:
+        if selected_metric == 'Delivery Time':
+            color_scale = 'Reds'
+            color_label = 'Avg Delivery Time (days)'
+        else:
+            color_scale = 'Blues'
+            color_label = 'Avg Rating'
+        
+        fig = px.choropleth(
+            state_summary,
+            geojson="https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson",
+            locations='customer_state',
+            featureidkey="properties.sigla",
+            hover_name='customer_state',
+            color=selected_metric.lower(),
+            color_continuous_scale=color_scale,
+            labels={selected_metric.lower(): color_label},
+            hover_data={
+                'delivery_time': True,
+                'review_score': True,
+                'customer_state': False
+            },
+            title=f'Average {color_label} by State'
         )
-    )
-    st.plotly_chart(fig)
+        fig.update_geos(fitbounds="locations", visible=False)
+        fig.update_layout(
+            margin={"r":0,"t":50,"l":0,"b":0},
+            clickmode='event+select',
+            autosize=True,
+            width=1000,
+            height=600,
+            coloraxis_colorbar=dict(
+                title=color_label,
+                thicknessmode="pixels", thickness=15,
+                lenmode="pixels", len=200,
+                yanchor="middle", y=0.5,
+                xanchor="left", x=-0.1
+            )
+        )
+        st.plotly_chart(fig)
 
 elif option == "Seller Analysis":
     st.header("Seller Analysis")

@@ -43,7 +43,7 @@ state_summary = df.groupby('customer_state').agg({'delivery_time': 'mean', 'revi
 unique_sellers_per_category = df.groupby('product_category_name_english')['seller_id'].nunique().reset_index()
 unique_sellers_per_category.rename(columns={'seller_id': 'unique_sellers_count'}, inplace=True)
 total_sales_per_category = df.groupby('product_category_name_english')['order_id'].count().reset_index()
-total_sales_per_category.rename(columns({'order_id': 'total_sales'}, inplace=True)
+total_sales_per_category.rename(columns={'order_id': 'total_sales'}, inplace=True)
 category_analysis = pd.merge(unique_sellers_per_category, total_sales_per_category, on='product_category_name_english')
 category_analysis['avg_sales_per_seller'] = category_analysis['total_sales'] / category_analysis['unique_sellers_count']
 median_avg_sales_per_seller = category_analysis['avg_sales_per_seller'].median()

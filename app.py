@@ -287,3 +287,4 @@ elif option == "Seller Power and Conversion Rates":
                 color_continuous_scale='Blues'
             )
             st.plotly_chart(fig2)
+

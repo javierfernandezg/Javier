@@ -11,6 +11,21 @@ import streamlit as st
 import zipfile
 import os
 
+# Mostrar contenido del directorio actual
+current_directory = os.getcwd()
+st.write(f"Directorio actual: {current_directory}")
+st.write("Contenido del directorio:")
+st.write(os.listdir(current_directory))
+
+# Comprobar si el archivo está en el directorio 'data'
+data_directory = os.path.join(current_directory, 'data')
+if not os.path.exists(data_directory):
+    st.write(f"El directorio 'data' no existe. Creando el directorio...")
+    os.makedirs(data_directory)
+
+st.write("Contenido del directorio 'data':")
+st.write(os.listdir(data_directory))
+
 # Helper function to extract and load CSVs from zip files
 def load_csv_from_zip(zip_path, file_name):
     if not os.path.exists(zip_path):
@@ -287,3 +302,4 @@ elif option == "Seller Power and Conversion Rates":
                 color_continuous_scale='Blues'
             )
             st.plotly_chart(fig2)
+

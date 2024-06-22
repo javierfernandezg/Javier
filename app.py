@@ -11,17 +11,22 @@ import streamlit as st
 import zipfile
 import os
 
-# Helper function to extract and load CSVs from zip files
-def load_csv_from_zip(zip_path, file_name):
-    if not os.path.exists(zip_path):
-        st.error(f"{zip_path} does not exist.")
-        st.stop()
-    with zipfile.ZipFile(zip_path, 'r') as z:
-        if file_name not in z.namelist():
-            st.error(f"{file_name} not found in the zip file.")
-            st.stop()
-        with z.open(file_name) as f:
-            return pd.read_csv(f)
+# Cargar datos
+with zipfile.ZipFile('merged_final_dataset_cleaned.csv.zip', 'r') as zipf:
+    with zipf.open('merged_final_dataset_cleaned.csv') as f:
+        merged_df = pd.read_csv(f)
+
+with zipfile.ZipFile('final_dataset.csv.zip', 'r') as zipf:
+    with zipf.open('final_dataset.csv') as f:
+        df = pd.read_csv(f)
+
+with zipfile.ZipFile('olist_closed_deals_dataset.csv.zip', 'r') as zipf:
+    with zipf.open('olist_closed_deals_dataset.csv') as f:
+        df = pd.read_csv(f)
+
+with zipfile.ZipFile('olist_marketing_qualified_leads_dataset.csv.zip', 'r') as zipf:
+    with zipf.open('olist_marketing_qualified_leads_dataset.csv') as f:
+        df = pd.read_csv(f)
 
 # Load datasets
 @st.cache_data

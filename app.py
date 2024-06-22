@@ -11,21 +11,6 @@ import streamlit as st
 import zipfile
 import os
 
-# Mostrar contenido del directorio actual
-current_directory = os.getcwd()
-st.write(f"Directorio actual: {current_directory}")
-st.write("Contenido del directorio:")
-st.write(os.listdir(current_directory))
-
-# Comprobar si el archivo está en el directorio 'data'
-data_directory = os.path.join(current_directory, 'data')
-if not os.path.exists(data_directory):
-    st.write(f"El directorio 'data' no existe. Creando el directorio...")
-    os.makedirs(data_directory)
-
-st.write("Contenido del directorio 'data':")
-st.write(os.listdir(data_directory))
-
 # Helper function to extract and load CSVs from zip files
 def load_csv_from_zip(zip_path, file_name):
     if not os.path.exists(zip_path):
@@ -41,14 +26,14 @@ def load_csv_from_zip(zip_path, file_name):
 # Load datasets
 @st.cache_data
 def load_data():
-    merged_df = load_csv_from_zip('data/merged_final_dataset_cleaned.csv.zip', 'merged_final_dataset_cleaned.csv')
-    df = load_csv_from_zip('data/final_dataset.csv.zip', 'final_dataset.csv')
+    merged_df = load_csv_from_zip('merged_final_dataset_cleaned.csv.zip', 'merged_final_dataset_cleaned.csv')
+    df = load_csv_from_zip('final_dataset.csv.zip', 'final_dataset.csv')
     df['order_purchase_timestamp'] = pd.to_datetime(df['order_purchase_timestamp'])
     df['order_delivered_customer_date'] = pd.to_datetime(df['order_delivered_customer_date'], errors='coerce')
     df['delivery_time'] = (df['order_delivered_customer_date'] - df['order_purchase_timestamp']).dt.days
     df = df[df['delivery_time'].notna() & df['review_score'].notna()]
-    closed_deals = load_csv_from_zip('data/olist_closed_deals_dataset.csv.zip', 'olist_closed_deals_dataset.csv')
-    qualified_leads = load_csv_from_zip('data/olist_marketing_qualified_leads_dataset.csv.zip', 'olist_marketing_qualified_leads_dataset.csv')
+    closed_deals = load_csv_from_zip('olist_closed_deals_dataset.csv.zip', 'olist_closed_deals_dataset.csv')
+    qualified_leads = load_csv_from_zip('olist_marketing_qualified_leads_dataset.csv.zip', 'olist_marketing_qualified_leads_dataset.csv')
     return merged_df, df, closed_deals, qualified_leads
 
 merged_df, df, closed_deals, qualified_leads = load_data()
@@ -302,4 +287,3 @@ elif option == "Seller Power and Conversion Rates":
                 color_continuous_scale='Blues'
             )
             st.plotly_chart(fig2)
-

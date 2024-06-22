@@ -177,6 +177,9 @@ elif option == "Rating and Delivery Time":
         st.write("Data preview:", state_summary.head())
         st.write("GeoJSON URL is valid and accessible.")
 
+        # Verificación adicional de los datos
+        st.write("Data passed to px.choropleth:", state_summary[['customer_state', selected_metric.lower()]].head())
+        
         fig = px.choropleth(
             state_summary,
             geojson="https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson",
@@ -307,4 +310,3 @@ elif option == "Seller Power and Conversion Rates":
                 color_continuous_scale='Blues'
             )
             st.plotly_chart(fig2)
-

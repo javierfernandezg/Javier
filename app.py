@@ -133,6 +133,16 @@ def analyze_orders(selection_type, state=None, category=None):
     st.write(results_filtered)
 
 # Streamlit App
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #E1ECF4;  /* Light blue for the rest of the page */
+    }
+    .css-1d391kg {
+        background-color: #2B3A67;  /* Dark blue for the sidebar */
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
@@ -329,4 +339,3 @@ def show_section(section):
 
 # Show the section
 show_section(section)
-

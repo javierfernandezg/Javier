@@ -11,16 +11,37 @@ import streamlit as st
 import zipfile
 import os
 
-# Estilos CSS para cambiar los colores
+# Estilos CSS para cambiar los colores y la barra de navegación superior
 st.markdown("""
     <style>
-    .sidebar .sidebar-content {
-        background-color: #2B3A67;  /* Azul oscuro para la barra lateral */
-    }
     .stApp {
         background-color: #E1ECF4;  /* Azul claro para el resto del diseño */
     }
+    .top-bar {
+        background-color: #2B3A67;  /* Azul oscuro para la barra superior */
+        padding: 10px;
+        text-align: center;
+    }
+    .top-bar a {
+        color: white;
+        margin: 0 15px;
+        text-decoration: none;
+        font-size: 20px;
+    }
+    .top-bar a:hover {
+        text-decoration: underline;
+    }
     </style>
+    """, unsafe_allow_html=True)
+
+# Barra de navegación superior
+st.markdown("""
+    <div class="top-bar">
+        <a href="#demand-forecast">Demand Forecast</a>
+        <a href="#rating-and-delivery-time">Rating and Delivery Time</a>
+        <a href="#seller-analysis">Seller Analysis</a>
+        <a href="#seller-power-and-conversion-rates">Seller Power and Conversion Rates</a>
+    </div>
     """, unsafe_allow_html=True)
 
 # Helper function to extract and load CSVs from zip files
@@ -148,11 +169,11 @@ def analyze_orders(selection_type, state=None, category=None):
 
 # Streamlit App
 st.title("Olist Consulting Dashboard")
-st.sidebar.title("Navigation")
-option = st.sidebar.selectbox("Choose a section", ["Demand Forecast", "Rating and Delivery Time", "Seller Analysis", "Seller Power and Conversion Rates"])
+
+option = st.selectbox("Choose a section", ["Demand Forecast", "Rating and Delivery Time", "Seller Analysis", "Seller Power and Conversion Rates"], key='main_menu')
 
 if option == "Demand Forecast":
-    st.header("Demand Forecast Analysis")
+    st.header("Demand Forecast Analysis", anchor="demand-forecast")
     state = st.selectbox('Select a customer state', df['customer_state'].unique())
     category = st.selectbox('Select a product category', df['product_category_name_english'].unique())
     forecast_option = st.radio('Forecast Option', ['Only by Category', 'Only by State', 'By Both State and Category'], index=1)
@@ -169,7 +190,7 @@ if option == "Demand Forecast":
         analyze_orders(selection_type, state, category)
 
 elif option == "Rating and Delivery Time":
-    st.header("Rating and Delivery Time Analysis")
+    st.header("Rating and Delivery Time Analysis", anchor="rating-and-delivery-time")
     selected_metric = st.selectbox('Select metric', ['Delivery Time', 'Rating'])
     
     # Check for required columns and non-null values
@@ -226,7 +247,7 @@ elif option == "Rating and Delivery Time":
         st.plotly_chart(fig)
 
 elif option == "Seller Analysis":
-    st.header("Seller Analysis")
+    st.header("Seller Analysis", anchor="seller-analysis")
     selected_state = st.selectbox('Select a customer state', merged_df['customer_state_summary'].unique())
     selected_category = st.selectbox('Select a product category', merged_df['product_category_name_english_summary'].unique())
     ranking_filter = st.radio('Select ranking filter', ['Top 10 Best Sellers', 'Top 10 Worst Sellers'])
@@ -293,7 +314,7 @@ elif option == "Seller Analysis":
         st.write(top_sellers_overall)
 
 elif option == "Seller Power and Conversion Rates":
-    st.header("Seller Power and Conversion Rates")
+    st.header("Seller Power and Conversion Rates", anchor="seller-power-and-conversion-rates")
     num_top_categories = st.selectbox('Select number of top categories', [5, 10, 15, 20], index=1)
     selected_segment = st.selectbox('Select a business segment', conversion_data['business_segment'].unique())
     if st.button('Analyze'):

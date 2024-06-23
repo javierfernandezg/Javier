@@ -11,6 +11,18 @@ import streamlit as st
 import zipfile
 import os
 
+# Estilos CSS para cambiar los colores
+st.markdown("""
+    <style>
+    .sidebar .sidebar-content {
+        background-color: #2B3A67;  /* Azul oscuro para la barra lateral */
+    }
+    .stApp {
+        background-color: #E1ECF4;  /* Azul claro para el resto del diseño */
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Helper function to extract and load CSVs from zip files
 def load_csv_from_zip(zip_path, file_name):
     if not os.path.exists(zip_path):

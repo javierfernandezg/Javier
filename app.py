@@ -180,9 +180,11 @@ def show_section(section):
             st.error("There are null values in the required columns of the state_summary dataframe.")
         else:
             if selected_metric == 'Delivery Time':
+                metric_column = 'delivery_time'
                 color_scale = 'Reds'
                 color_label = 'Avg Delivery Time (days)'
             else:
+                metric_column = 'review_score'
                 color_scale = 'Blues'
                 color_label = 'Avg Rating'
             
@@ -191,7 +193,7 @@ def show_section(section):
             st.write("GeoJSON URL is valid and accessible.")
 
             # Verificación adicional de los datos
-            st.write("Data passed to px.choropleth:", state_summary[['customer_state', selected_metric.lower()]].head())
+            st.write("Data passed to px.choropleth:", state_summary[['customer_state', metric_column]].head())
             
             fig = px.choropleth(
                 state_summary,
@@ -199,9 +201,9 @@ def show_section(section):
                 locations='customer_state',
                 featureidkey="properties.sigla",
                 hover_name='customer_state',
-                color=selected_metric.lower(),
+                color=metric_column,
                 color_continuous_scale=color_scale,
-                labels={selected_metric.lower(): color_label},
+                labels={metric_column: color_label},
                 hover_data={
                     'delivery_time': True,
                     'review_score': True,

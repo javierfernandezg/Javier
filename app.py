@@ -2,37 +2,12 @@ import pandas as pd
 import numpy as np
 import xgboost as xgb
 import matplotlib.pyplot as plt
-import io
-import base64
 from datetime import timedelta
 from sklearn.metrics import mean_squared_error
 import plotly.express as px
 import streamlit as st
 import zipfile
 import os
-
-# Estilos CSS para cambiar los colores y la barra de navegación superior
-st.markdown("""
-    <style>
-    .stApp {
-        background-color: #E1ECF4;  /* Azul claro para el resto del diseño */
-    }
-    .top-bar {
-        background-color: #2B3A67;  /* Azul oscuro para la barra superior */
-        display: flex;
-        justify-content: space-around;
-        padding: 10px;
-    }
-    .top-bar a {
-        color: white;
-        text-decoration: none;
-        font-size: 20px;
-    }
-    .top-bar a:hover {
-        text-decoration: underline;
-    }
-    </style>
-    """, unsafe_allow_html=True)
 
 # Helper function to extract and load CSVs from zip files
 def load_csv_from_zip(zip_path, file_name):
@@ -160,33 +135,14 @@ def analyze_orders(selection_type, state=None, category=None):
 # Streamlit App
 st.title("Olist Consulting Dashboard")
 
-# Obtener la sección seleccionada de los parámetros de la URL
-query_params = st.experimental_get_query_params()
-default_section = query_params.get("section", ["demand_forecast"])[0]
+# Sidebar for navigation
+st.sidebar.title("Navigation")
+section = st.sidebar.radio("Go to", ["Demand Forecast", "Rating and Delivery Time", "Seller Analysis", "Seller Power and Conversion Rates"])
 
-# Mapear la sección seleccionada a la opción correspondiente del selectbox
-section_to_option = {
-    "demand_forecast": "Demand Forecast",
-    "rating_and_delivery_time": "Rating and Delivery Time",
-    "seller_analysis": "Seller Analysis",
-    "seller_power_and_conversion_rates": "Seller Power and Conversion Rates"
-}
-option = section_to_option.get(default_section, "Demand Forecast")
-
-# Barra de navegación superior
-st.markdown(f"""
-    <div class="top-bar">
-        <a href="?section=demand_forecast">Demand Forecast</a>
-        <a href="?section=rating_and_delivery_time">Rating and Delivery Time</a>
-        <a href="?section=seller_analysis">Seller Analysis</a>
-        <a href="?section=seller_power_and_conversion_rates">Seller Power and Conversion Rates</a>
-    </div>
-    """, unsafe_allow_html=True)
-
-# Función para mostrar la sección seleccionada
+# Show selected section
 def show_section(section):
-    if section == "demand_forecast":
-        st.header("Demand Forecast Analysis", anchor="demand-forecast")
+    if section == "Demand Forecast":
+        st.header("Demand Forecast Analysis")
         state = st.selectbox('Select a customer state', df['customer_state'].unique())
         category = st.selectbox('Select a product category', df['product_category_name_english'].unique())
         forecast_option = st.radio('Forecast Option', ['Only by Category', 'Only by State', 'By Both State and Category'], index=1)
@@ -202,8 +158,8 @@ def show_section(section):
         if st.button('Go'):
             analyze_orders(selection_type, state, category)
 
-    elif section == "rating_and_delivery_time":
-        st.header("Rating and Delivery Time Analysis", anchor="rating-and-delivery-time")
+    elif section == "Rating and Delivery Time":
+        st.header("Rating and Delivery Time Analysis")
         selected_metric = st.selectbox('Select metric', ['Delivery Time', 'Rating'])
         
         # Check for required columns and non-null values
@@ -259,8 +215,8 @@ def show_section(section):
             )
             st.plotly_chart(fig)
 
-    elif section == "seller_analysis":
-        st.header("Seller Analysis", anchor="seller-analysis")
+    elif section == "Seller Analysis":
+        st.header("Seller Analysis")
         selected_state = st.selectbox('Select a customer state', merged_df['customer_state_summary'].unique())
         selected_category = st.selectbox('Select a product category', merged_df['product_category_name_english_summary'].unique())
         ranking_filter = st.radio('Select ranking filter', ['Top 10 Best Sellers', 'Top 10 Worst Sellers'])
@@ -326,8 +282,8 @@ def show_section(section):
             st.subheader("Top 5 Overall")
             st.write(top_sellers_overall)
 
-    elif section == "seller_power_and_conversion_rates":
-        st.header("Seller Power and Conversion Rates", anchor="seller-power-and-conversion-rates")
+    elif section == "Seller Power and Conversion Rates":
+        st.header("Seller Power and Conversion Rates")
         num_top_categories = st.selectbox('Select number of top categories', [5, 10, 15, 20], index=1)
         selected_segment = st.selectbox('Select a business segment', conversion_data['business_segment'].unique())
         if st.button('Analyze'):
@@ -357,5 +313,6 @@ def show_section(section):
                 )
                 st.plotly_chart(fig2)
 
-# Mostrar la sección seleccionada
-show_section(default_section)
+# Show the section
+show_section(section)
+

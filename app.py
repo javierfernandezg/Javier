@@ -133,7 +133,6 @@ def analyze_orders(selection_type, state=None, category=None):
     st.write(results_filtered)
 
 # Streamlit App
-st.title("Olist Consulting Dashboard")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
@@ -142,8 +141,17 @@ section = st.sidebar.radio("Go to", ["Welcome", "Demand Forecast", "Rating and D
 # Show selected section
 def show_section(section):
     if section == "Welcome":
-        st.header("Welcome to Olist Consulting")
-        st.write("This dashboard provides insights and analyses to help you make data-driven decisions for your business.")
+        st.markdown("<h1 style='text-align: center;'>Welcome to Olist Consulting</h1>", unsafe_allow_html=True)
+        st.markdown(
+            """
+            <div style='text-align: center;'>
+                <a href='https://olist.com/' target='_blank'>
+                    <img src='https://miro.medium.com/v2/resize:fit:860/1*axbXtRXw9pgn1QA9HVkQVA.png' alt='Olist' style='width:300px;'>
+                </a>
+            </div>
+            """,
+            unsafe_allow_html=True
+        )
     elif section == "Demand Forecast":
         st.header("Demand Forecast Analysis")
         state = st.selectbox('Select a customer state', df['customer_state'].unique())

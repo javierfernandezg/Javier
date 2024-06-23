@@ -137,11 +137,14 @@ st.title("Olist Consulting Dashboard")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-section = st.sidebar.radio("Go to", ["Demand Forecast", "Rating and Delivery Time", "Seller Analysis", "Seller Power and Conversion Rates"])
+section = st.sidebar.radio("Go to", ["Welcome", "Demand Forecast", "Rating and Delivery Time", "Seller Analysis", "Seller Power and Conversion Rates"], index=0)
 
 # Show selected section
 def show_section(section):
-    if section == "Demand Forecast":
+    if section == "Welcome":
+        st.header("Welcome to Olist Consulting")
+        st.write("This dashboard provides insights and analyses to help you make data-driven decisions for your business.")
+    elif section == "Demand Forecast":
         st.header("Demand Forecast Analysis")
         state = st.selectbox('Select a customer state', df['customer_state'].unique())
         category = st.selectbox('Select a product category', df['product_category_name_english'].unique())

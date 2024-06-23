@@ -19,8 +19,9 @@ st.markdown("""
     }
     .top-bar {
         background-color: #2B3A67;  /* Azul oscuro para la barra superior */
+        display: flex;
+        justify-content: center;
         padding: 10px;
-        text-align: center;
     }
     .top-bar a {
         color: white;

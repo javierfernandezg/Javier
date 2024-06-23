@@ -42,17 +42,6 @@ unique_sellers_per_category = df.groupby('product_category_name_english')['selle
 unique_sellers_per_category.rename(columns={'seller_id': 'unique_sellers_count'}, inplace=True)
 total_sales_per_category = df.groupby('product_category_name_english')['order_id'].count().reset_index()
 total_sales_per_category.rename(columns={'order_id': 'total_sales'}, inplace=True)
-
-# Debugging output
-st.write("Unique sellers per category:", unique_sellers_per_category.head())
-st.write("Total sales per category:", total_sales_per_category.head())
-
-# Ensure the necessary column exists in both DataFrames
-if 'product_category_name_english' not in unique_sellers_per_category.columns:
-    st.error("Column 'product_category_name_english' not found in unique_sellers_per_category.")
-if 'product_category_name_english' not in total_sales_per_category.columns:
-    st.error("Column 'product_category_name_english' not found in total_sales_per_category.")
-
 category_analysis = pd.merge(unique_sellers_per_category, total_sales_per_category, on='product_category_name_english')
 category_analysis['avg_sales_per_seller'] = category_analysis['total_sales'] / category_analysis['unique_sellers_count']
 median_avg_sales_per_seller = category_analysis['avg_sales_per_seller'].median()
@@ -144,8 +133,6 @@ def analyze_orders(selection_type, state=None, category=None):
     st.write(results_filtered)
 
 # Streamlit App
-
-# CSS for styling
 st.markdown("""
     <style>
     .stApp {

@@ -37,10 +37,10 @@ st.markdown("""
 # Barra de navegación superior
 st.markdown("""
     <div class="top-bar">
-        <a href="#demand-forecast">Demand Forecast</a>
-        <a href="#rating-and-delivery-time">Rating and Delivery Time</a>
-        <a href="#seller-analysis">Seller Analysis</a>
-        <a href="#seller-power-and-conversion-rates">Seller Power and Conversion Rates</a>
+        <a href="?section=demand_forecast">Demand Forecast</a>
+        <a href="?section=rating_and_delivery_time">Rating and Delivery Time</a>
+        <a href="?section=seller_analysis">Seller Analysis</a>
+        <a href="?section=seller_power_and_conversion_rates">Seller Power and Conversion Rates</a>
     </div>
     """, unsafe_allow_html=True)
 
@@ -170,9 +170,27 @@ def analyze_orders(selection_type, state=None, category=None):
 # Streamlit App
 st.title("Olist Consulting Dashboard")
 
-option = st.selectbox("Choose a section", ["Demand Forecast", "Rating and Delivery Time", "Seller Analysis", "Seller Power and Conversion Rates"], key='main_menu')
+# Obtener la sección seleccionada de los parámetros de la URL
+query_params = st.experimental_get_query_params()
+default_section = query_params.get("section", ["demand_forecast"])[0]
 
-if option == "Demand Forecast":
+# Mapear la sección seleccionada a la opción correspondiente del selectbox
+section_to_option = {
+    "demand_forecast": "Demand Forecast",
+    "rating_and_delivery_time": "Rating and Delivery Time",
+    "seller_analysis": "Seller Analysis",
+    "seller_power_and_conversion_rates": "Seller Power and Conversion Rates"
+}
+option = section_to_option.get(default_section, "Demand Forecast")
+
+# Selectbox para la navegación
+selected_option = st.selectbox("Choose a section", list(section_to_option.values()), index=list(section_to_option.values()).index(option), key='main_menu')
+
+# Establecer el parámetro de la URL al cambiar la selección
+section_to_option_reversed = {v: k for k, v in section_to_option.items()}
+st.experimental_set_query_params(section=section_to_option_reversed[selected_option])
+
+if selected_option == "Demand Forecast":
     st.header("Demand Forecast Analysis", anchor="demand-forecast")
     state = st.selectbox('Select a customer state', df['customer_state'].unique())
     category = st.selectbox('Select a product category', df['product_category_name_english'].unique())
@@ -189,7 +207,7 @@ if option == "Demand Forecast":
     if st.button('Go'):
         analyze_orders(selection_type, state, category)
 
-elif option == "Rating and Delivery Time":
+elif selected_option == "Rating and Delivery Time":
     st.header("Rating and Delivery Time Analysis", anchor="rating-and-delivery-time")
     selected_metric = st.selectbox('Select metric', ['Delivery Time', 'Rating'])
     
@@ -246,7 +264,7 @@ elif option == "Rating and Delivery Time":
         )
         st.plotly_chart(fig)
 
-elif option == "Seller Analysis":
+elif selected_option == "Seller Analysis":
     st.header("Seller Analysis", anchor="seller-analysis")
     selected_state = st.selectbox('Select a customer state', merged_df['customer_state_summary'].unique())
     selected_category = st.selectbox('Select a product category', merged_df['product_category_name_english_summary'].unique())
@@ -313,7 +331,7 @@ elif option == "Seller Analysis":
         st.subheader("Top 5 Overall")
         st.write(top_sellers_overall)
 
-elif option == "Seller Power and Conversion Rates":
+elif selected_option == "Seller Power and Conversion Rates":
     st.header("Seller Power and Conversion Rates", anchor="seller-power-and-conversion-rates")
     num_top_categories = st.selectbox('Select number of top categories', [5, 10, 15, 20], index=1)
     selected_segment = st.selectbox('Select a business segment', conversion_data['business_segment'].unique())

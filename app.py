@@ -210,58 +210,59 @@ if selected_option == "Demand Forecast":
 elif option == "Rating and Delivery Time":
     st.header("Rating and Delivery Time Analysis", anchor="rating-and-delivery-time")
     selected_metric = st.selectbox('Select metric', ['Delivery Time', 'Rating'])
+    
+    # Check for required columns and non-null values
+    if 'customer_state' not in state_summary.columns or 'delivery_time' not in state_summary.columns or 'review_score' not in state_summary.columns:
+        st.error("Required columns are missing from the state_summary dataframe.")
+    elif state_summary[['customer_state', 'delivery_time', 'review_score']].isnull().any().any():
+        st.error("There are null values in the required columns of the state_summary dataframe.")
+    else:
+        if selected_metric == 'Delivery Time':
+            color_scale = 'Reds'
+            color_label = 'Avg Delivery Time (days)'
+        else:
+            color_scale = 'Blues'
+            color_label = 'Avg Rating'
+        
+        # Debugging output
+        st.write("Data preview:", state_summary.head())
+        st.write("GeoJSON URL is valid and accessible.")
 
-    # Ensure columns exist and are numeric
-    for col in ['delivery_time', 'review_score']:
-        if col not in state_summary.columns or state_summary[col].dtype != 'float64':
-            st.error(f"Data issue: Column '{col}' missing or not numeric in state_summary.")
-            st.stop()  # Stop execution to avoid errors later
-
-    color_scale = 'Reds' if selected_metric == 'Delivery Time' else 'Blues'
-    color_label = f'Avg {selected_metric} (days)' if selected_metric == 'Delivery Time' else 'Avg Rating'
-
-    # Explicitly rename column to match what Plotly expects
-    state_summary = state_summary.rename(columns={
-        'customer_state': 'sigla', 
-        selected_metric.lower(): color_label  # Make this the exact label used in the plot
-    })
-
-    st.write("Data preview (after renaming):", state_summary[['sigla', color_label]].head())
-
-    # Create the GeoJSON URL
-    geojson_url = "https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson"
-
-    # Create the Plotly chart (use renamed columns)
-    fig = px.choropleth(
-        state_summary,
-        geojson=geojson_url,
-        locations='sigla',                 
-        featureidkey="properties.sigla",  
-        color=color_label,                
-        color_continuous_scale=color_scale,
-        labels={color_label: color_label}, 
-        hover_data={'delivery_time': True, 'review_score': True, 'sigla': False}, # Update the hover_data
-        title=f'Average {color_label} by State'
-    )
-
-    fig.update_geos(fitbounds="locations", visible=False)
-    fig.update_layout(
-        margin={"r":0,"t":50,"l":0,"b":0},
-        clickmode='event+select',
-        autosize=True,
-        width=1000,
-        height=600,
-        coloraxis_colorbar=dict(
-            title=color_label,
-            thicknessmode="pixels", thickness=15,
-            lenmode="pixels", len=200,
-            yanchor="middle", y=0.5,
-            xanchor="left", x=-0.1
+        # Verificación adicional de los datos
+        st.write("Data passed to px.choropleth:", state_summary[['customer_state', selected_metric.lower()]].head())
+        
+        fig = px.choropleth(
+            state_summary,
+            geojson="https://raw.githubusercontent.com/codeforamerica/click_that_hood/master/public/data/brazil-states.geojson",
+            locations='customer_state',
+            featureidkey="properties.sigla",
+            hover_name='customer_state',
+            color=selected_metric.lower(),
+            color_continuous_scale=color_scale,
+            labels={selected_metric.lower(): color_label},
+            hover_data={
+                'delivery_time': True,
+                'review_score': True,
+                'customer_state': False
+            },
+            title=f'Average {color_label} by State'
         )
-    )
-
-    st.plotly_chart(fig)
-
+        fig.update_geos(fitbounds="locations", visible=False)
+        fig.update_layout(
+            margin={"r":0,"t":50,"l":0,"b":0},
+            clickmode='event+select',
+            autosize=True,
+            width=1000,
+            height=600,
+            coloraxis_colorbar=dict(
+                title=color_label,
+                thicknessmode="pixels", thickness=15,
+                lenmode="pixels", len=200,
+                yanchor="middle", y=0.5,
+                xanchor="left", x=-0.1
+            )
+        )
+        st.plotly_chart(fig)
 elif selected_option == "Seller Analysis":
     st.header("Seller Analysis", anchor="seller-analysis")
     selected_state = st.selectbox('Select a customer state', merged_df['customer_state_summary'].unique())

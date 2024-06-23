@@ -133,21 +133,6 @@ def analyze_orders(selection_type, state=None, category=None):
     st.write(results_filtered)
 
 # Streamlit App
-st.markdown("""
-    <style>
-    .stApp {
-        background-color: #E1ECF4;  /* Light blue for the rest of the page */
-    }
-    .css-1d391kg {
-        background-color: #2B3A67;  /* Dark blue for the sidebar */
-    }
-    .highlight-text {
-        font-size: 24px;
-        font-weight: bold;
-        color: #2B3A67;
-    }
-    </style>
-    """, unsafe_allow_html=True)
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
@@ -163,7 +148,7 @@ def show_section(section):
                 <a href='https://olist.com/' target='_blank'>
                     <img src='https://miro.medium.com/v2/resize:fit:860/1*axbXtRXw9pgn1QA9HVkQVA.png' alt='Olist' style='width:300px;'>
                 </a>
-                <p class='highlight-text'>End-to-end solutions for selling online without headaches</p>
+                <p style='text-align: center;'>End-to-end solutions for selling online without headaches</p>
             </div>
             """,
             unsafe_allow_html=True

@@ -1,4 +1,4 @@
-import pandas as pd
+import pandas as np
 import numpy as np
 import xgboost as xgb
 import matplotlib.pyplot as plt
@@ -134,6 +134,23 @@ def analyze_orders(selection_type, state=None, category=None):
 
 # Streamlit App
 
+# CSS for styling
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #E1ECF4;  /* Light blue for the rest of the page */
+    }
+    .css-1d391kg {
+        background-color: #2B3A67;  /* Dark blue for the sidebar */
+    }
+    .highlight-text {
+        font-size: 24px;
+        font-weight: bold;
+        color: #2B3A67;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
 # Sidebar for navigation
 st.sidebar.title("Navigation")
 section = st.sidebar.radio("Go to", ["Welcome", "Demand Forecast", "Rating and Delivery Time", "Seller Analysis", "Seller Power and Conversion Rates"], index=0)
@@ -148,7 +165,7 @@ def show_section(section):
                 <a href='https://olist.com/' target='_blank'>
                     <img src='https://miro.medium.com/v2/resize:fit:860/1*axbXtRXw9pgn1QA9HVkQVA.png' alt='Olist' style='width:300px;'>
                 </a>
-                <p style='text-align: center;'>End-to-end solutions for selling online without headaches</p>
+                <p class='highlight-text'>End-to-end solutions for selling online without headaches</p>
             </div>
             """,
             unsafe_allow_html=True
@@ -329,4 +346,3 @@ def show_section(section):
 
 # Show the section
 show_section(section)
-

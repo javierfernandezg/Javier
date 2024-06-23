@@ -148,6 +148,7 @@ def show_section(section):
                 <a href='https://olist.com/' target='_blank'>
                     <img src='https://miro.medium.com/v2/resize:fit:860/1*axbXtRXw9pgn1QA9HVkQVA.png' alt='Olist' style='width:300px;'>
                 </a>
+                <p style='text-align: center;'>End-to-end solutions for selling online without headaches</p>
             </div>
             """,
             unsafe_allow_html=True

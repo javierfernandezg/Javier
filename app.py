@@ -20,12 +20,11 @@ st.markdown("""
     .top-bar {
         background-color: #2B3A67;  /* Azul oscuro para la barra superior */
         display: flex;
-        justify-content: center;
+        justify-content: space-around;
         padding: 10px;
     }
     .top-bar a {
         color: white;
-        margin: 0 15px;
         text-decoration: none;
         font-size: 20px;
     }
@@ -344,4 +343,3 @@ elif option == "Seller Power and Conversion Rates":
                 color_continuous_scale='Blues'
             )
             st.plotly_chart(fig2)
-
